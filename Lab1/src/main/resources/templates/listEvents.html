@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <title>Event Booking page - Welcome and choose an Event</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+          integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+          integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+          crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+          integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+          crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/e59232f0a1.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <h1 class="title">Welcome to our Event Booking App</h1>
+</header>
+<main>
+  <th:block th:if="${hasError}">
+    <p style="color: red" th:text="${error}"></p>
+  </th:block>
+  <form th:method="POST" th:action="@{/events}">
+    <h2 class="sub-title" style="text-align: center">Search Events </h2>
+    <div class="form-group">
+      <label for="eventNameSearch"  class="form-label">Event name</label>
+      <input type="text"
+             class="form-control"
+             id="eventNameSearch"
+             name="eventNameSearch"
+             placeholder="Enter your event">
+    </div>
+    <div class="form-group">
+      <label for="minRating"  class="form-label">Min Rating</label>
+      <input type="text"
+             class="form-control"
+             id="minRating"
+             name="minRating"
+             placeholder="Min Rating">
+    </div>
+    <div class="form-group">
+      <label>Location</label>
+      <select name="locationId" class="form-control">
+        <option value="" disabled selected>Select a location</option>
+        <option th:if="${locations.size()>0}"
+                th:each="loc : ${locations}"
+                th:value="${loc.getId()}"
+                th:text="${loc.getName()}">
+        </option>
+      </select>
+    </div>
+    <input type="submit" value="Search" class="btn btn-block btn-primary add-product-btn"/>
+  </form>
+  <hr/>
+  <form th:method="POST" th:action="@{/eventBooking}">
+    <h2 class="sub-title" style="text-align: center">Choose an event</h2>
+    <table style="margin-left: 1.5%" class="table table-striped">
+      <thead>
+      <tr>
+        <th scope="col">Select Event</th>
+        <th scope="col">Event Name</th>
+        <th scope="col">Event Description</th>
+        <th scope="col">Event Popularity Score</th>
+        <th scope="col">Event Location</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="event : ${events}" class="event">
+        <td>
+          <label for="sel"></label>
+          <input id="sel" type="radio" th:value="${event.getId()}" name="eventID">
+        </td>
+        <td th:text="${event.getName()}"></td>
+        <td th:text="${event.getDescription()}"></td>
+        <td th:text="${event.getPopularityScore()}"></td>
+        <td th:text="${event.getLocation() != null}
+                            ? ${event.getLocation().getName()} : 'No Location'"></td>
+        <td class="text-right">
+          <th:block>
+            <a th:href="@{'/events/delete/{id}' (id=${event.getId()})}"
+               class="btn btn-danger edit-product">
+              <i>Delete</i>
+            </a>
+          </th:block>
+          <th:block>
+            <a th:href="@{'/events/edit/{id}' (id=${event.getId()})}"
+               class="btn  btn-info">
+              <i>Edit</i>
+            </a>
+          </th:block>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="col mb-3">
+      <div class="row">
+        <div class="col-sm-12 col-md-12">
+          <a href="/events/add-form" class="btn btn-block btn-primary add-product-btn">
+            Add new event
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="attendName"  class="form-label">Name and Surname</label>
+      <input class="form-control" type="text" id="attendName" name="attendName">
+    </div>
+    <div class="form-group">
+      <label for="numTickets"  class="form-label">Number of Tickets</label>
+      <input class="form-control" id="numTickets" type="number" name="numTickets" min="1" max="10"><br/>
+    </div>
+    <div class="col mb-3">
+    <div class="row">
+      <div class="col-sm-12 col-md-12">
+        <input class="btn btn-block btn-dark add-product-btn" type="submit" value="Submit">
+      </div>
+    </div>
+    </div>
+  </form>
+</main>
+</body>
+</html>
