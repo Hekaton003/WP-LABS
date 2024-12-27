@@ -5,6 +5,7 @@ import mk.ukim.finki.wp.lab.model.Location;
 import mk.ukim.finki.wp.lab.service.EventService;
 import mk.ukim.finki.wp.lab.service.LocationService;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -49,11 +50,13 @@ public class EventController {
         return "listEvents";
     }
     @GetMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteEvent(@PathVariable Long id){
         this.eventService.deleteEvent(id);
         return "redirect:/events";
     }
     @GetMapping("/edit/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String editEvent(@PathVariable Long id, Model model){
         if (this.eventService.getEvent(id).isPresent()) {
             Event event = this.eventService.getEvent(id).get();
@@ -65,14 +68,16 @@ public class EventController {
         return "redirect:/events?error=EventNotFound";
     }
     @GetMapping("/add-form")
-    public String addProductPage(Model model) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public String addEventPage(Model model) {
         List<Location> locations = this.locationService.findAll();
         model.addAttribute("locations",locations);
         return "add-event";
     }
 
     @PostMapping("/add")
-    public String saveProduct(@RequestParam String name,
+    @PreAuthorize("hasRole('ADMIN')")
+    public String saveEvent(@RequestParam String name,
                               @RequestParam String description,
                               @RequestParam String popularityScore,
                               @RequestParam Long  locationId) {
