@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>Songs Homepage - Welcome to My Music Store</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/e59232f0a1.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">MUSIC STORE</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+                    aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarsExampleDefault">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="btn btn-light btn-sm ml-3" href="/logout">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAnonymous()">
+                        <a class="btn btn-light btn-sm ml-3" href="/login">
+                            <i class="fa-solid fa-right-to-bracket"></i> Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<main>
+    <section>
+        <form action="/songs/search" method="POST">
+            <div class="form-group">
+                <label for="title">Song Title</label>
+                <input type="text"
+                       class="form-control"
+                       id="title"
+                       name="title"
+                       placeholder="Enter song title">
+            </div>
+            <div class="form-group">
+                <label for="genre">Genre</label>
+                <input type="text"
+                       class="form-control"
+                       id="genre"
+                       name="genre"
+                       placeholder="Genre">
+            </div>
+            <div class="form-group">
+                <label for="releaseYear">Released Year</label>
+                <input type="text"
+                       class="form-control"
+                       id="releaseYear"
+                       name="releaseYear"
+                       placeholder="Release Year">
+            </div>
+            <div class="form-group">
+                <label for="select">Search by Albums</label>
+                <select id="select" name="albumID" class="form-control">
+                    <option value="0" selected>Select all albums</option>
+                    <option
+                            th:each="cat : ${albums}"
+                            th:value="${cat.getId()}"
+                            th:text="${cat.getName()}">
+                    </option>
+                </select>
+            </div>
+            <button id="submit" type="submit" class="btn btn-primary">Search</button>
+        </form>
+        <br/>
+    </section>
+    <div class="table-responsive" th:if="${songs.size()>0}">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Song Track ID</th>
+            <th scope="col">Song Title</th>
+            <th scope="col">Song Genre</th>
+            <th scope="col">Released Year</th>
+            <th scope="col">Album Name</th>
+            <th scope="col">Artists</th>
+            <th scope="col">Price</th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="song : ${songs}" class="song">
+            <td th:text="${song.getTrackId()}"></td>
+            <td th:text="${song.getTitle()}"></td>
+            <td th:text="${song.getGenre()}"></td>
+            <td th:text="${song.getReleaseYear()}"></td>
+            <td th:text="${song.getAlbum() != null}
+                            ? ${song.getAlbum().getName()} : 'No Album'"></td>
+            <td th:if="${song.getPerformers()!=null}">
+                <ul th:each="artist : ${song.getPerformers()}">
+                    <li><span th:text="${artist.getFirstName()}"></span> <span th:text=" ${artist.getLastName()}"></span></li>
+                </ul>
+            </td>
+            <td th:if="${song.getPrice()!=null}">
+                <span th:text="${song.getPrice().PriceFormat()}"></span>
+            </td>
+            <td class="text-right">
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{'/songs/delete/{id}' (id=${song.getId()})}"
+                       class="btn btn-danger edit-product">
+                        <i>Delete</i>
+                    </a>
+                </th:block>
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{'/songs/edit-form/{id}' (id=${song.getId()})}"
+                       class="btn  btn-info edit-product">
+                        <i>Edit</i>
+                    </a>
+                </th:block>
+            </td>
+            <td class="text-right">
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{'/artist/add/{id}' (id=${song.getId()})}"
+                       class="btn  btn-info edit-product">
+                        <i>Add Artist</i>
+                    </a>
+                </th:block>
+                <th:block>
+                    <a th:href="@{'/songDetails/view/{id}' (id=${song.getId()})}"
+                       class="btn  btn-dark edit-product">
+                        <i>View Details</i>
+                    </a>
+                </th:block>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+    <div class="col mb-3" sec:authorize="hasRole('ADMIN')">
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <a href="/songs/add-form" class="btn btn-block btn-dark add-product-btn">
+                    Add new song
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
